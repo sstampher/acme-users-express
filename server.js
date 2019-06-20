@@ -28,15 +28,29 @@ const read = (filePath) => {
             let results;
             try {
                 results = JSON.parse(data.toString())
+                if(!Array.isArray(results)){
+                    return reject('data must be an array');
+                }
             }
+            catch(ex){
+                return reject(ex)
+            }
+            resolve(results);
         })
     })
 }
 
-write(FILE, [{name: 'moe'}, {name: 'larry'}]).then(() => console.log('success')).catch(ex=>console.log(ex));
+write(FILE, [{name: 'moe'}, {name: 'larry'}])
+.then(() => read(FILE))
+.then(results => {results.push({name: 'stupidFace'});
+                  return write(FILE, results);
+                })
+.catch(ex=>console.log(ex));
 
-app.listen(port, ()=>console.log(`listening on port ${port}`))
+// app.listen(port, ()=>console.log(`listening on port ${port}`))
 
 app.get('/', (req, res, next) => res.sendFile(path.join(__dirname, 'index.html')))
 
-app.get('/api/products', (req, res, next) => res.sendFile(path.join(__dirname, 'data.json')))
+app.get('/api/products', (req, res, next) => res.sendFile(path.join(__dirname, 'data.json')));
+
+app.listen(port, ()=>console.log(`listening on port ${port}`))
